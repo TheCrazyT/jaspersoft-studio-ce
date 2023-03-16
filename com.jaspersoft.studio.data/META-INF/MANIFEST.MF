@@ -3,10 +3,10 @@ Eclipse-ExtensibleAPI: true
 Bundle-ManifestVersion: 2
 Bundle-Name: Data Adapters
 Bundle-SymbolicName: com.jaspersoft.studio.data;singleton:=true
-Bundle-Version: 8.2.0.qualifier
+Bundle-Version: 6.20.1.final
 Bundle-Activator: com.jaspersoft.studio.data.Activator
 Bundle-Vendor: Cloud Software Group, Inc.
-Require-Bundle: com.jaspersoft.studio;bundle-version="8.2.0";visibility:=reexport,
+Require-Bundle: com.jaspersoft.studio;bundle-version="6.20.1";visibility:=reexport,
  org.apache.commons.lang3;bundle-version="3.8.1";visibility:=reexport,
  org.slf4j.api;bundle-version="1.6.4";visibility:=reexport,
  com.jaspersoft.studio.bundles.soap;bundle-version="1.4.2"

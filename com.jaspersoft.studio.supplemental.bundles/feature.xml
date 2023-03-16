@@ -2,7 +2,7 @@
 <feature
       id="com.jaspersoft.studio.supplemental.bundles"
       label="Additional bundles for the Community Edition"
-      version="8.2.0.qualifier"
+      version="6.20.1.final"
       provider-name="Cloud Software Group, Inc.">
 
    <description url="https://community.jaspersoft.com/project/jaspersoft-studio">
@@ -19,7 +19,7 @@
    </url>
 
    <requires>
-      <import plugin="com.jaspersoft.studio" version="8.2.0" match="greaterOrEqual"/>
+      <import plugin="com.jaspersoft.studio" version="6.20.1" match="greaterOrEqual"/>
       <import plugin="org.w3c.css.sac" version="1.3.1" match="greaterOrEqual"/>
    </requires>
 
@@ -27,7 +27,7 @@
          id="com.jaspersoft.studio.svgimporter"
          download-size="0"
          install-size="0"
-         version="8.2.0.qualifier"
+         version="6.20.1.final"
          unpack="false"/>
 
 </feature>
