@@ -3,19 +3,26 @@
  *******************************************************************************/
 package com.jaspersoft.studio.editor.context;
 
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.osgi.internal.loader.EquinoxClassLoader;
 
 import com.jaspersoft.studio.JaspersoftStudioPlugin;
 import com.jaspersoft.studio.data.DataAdapterDescriptor;
@@ -146,6 +153,27 @@ public class AEditorContext {
 	protected JavaProjectClassLoader javaclassloader;
 	protected JSSClasspathListener classpathlistener;
 
+	private class FilteredURLClassLoader extends URLClassLoader {
+		private ClassLoader javaprojclassloader;
+
+		public FilteredURLClassLoader(URL[] urls, ClassLoader parent, ClassLoader javaprojclassloader) {
+			super(urls, parent);
+			this.javaprojclassloader = javaprojclassloader;
+		}
+
+		public Class<?> loadClass(String name) throws ClassNotFoundException {
+			Class<?> clazz = super.loadClass(name);
+			if ((clazz.getClassLoader() instanceof EquinoxClassLoader)
+					&& (!clazz.getCanonicalName().startsWith("net.sf.jasperreports"))) {
+				// We don't want classes from eclipse environment itself
+				// Or else packages like org.slf4j might cause problems.
+				return findClass(name);
+			}
+			return clazz;
+		}
+
+	}
+
 	public ClassLoader getClassLoader() {
 		return classLoader;
 	}
@@ -162,11 +190,14 @@ public class AEditorContext {
 				IProject project = f.getProject();
 				if (project != null && project.exists() && project.getNature(JavaCore.NATURE_ID) != null) {
 					javaclassloader = JavaProjectClassLoader.instance(JavaCore.create(project), cl);
-					jConf.put(JavaProjectClassLoader.JAVA_PROJECT_CLASS_LOADER_KEY, javaclassloader);
+					Set<URL> urls = JavaProjectClassLoader.buildURLs(JavaCore.create(project));
+					URLClassLoader filteredClassLoader = new FilteredURLClassLoader(urls.toArray(new URL[urls.size()]), cl,
+							javaclassloader);
+					jConf.put(JavaProjectClassLoader.JAVA_PROJECT_CLASS_LOADER_KEY, filteredClassLoader);
 					jConf.setValue(AbstractClasspathAwareDataAdapterService.CURRENT_CLASS_LOADER, cl);
 					classpathlistener = new JSSClasspathListener(this, jConf);
 					javaclassloader.addClasspathListener(classpathlistener);
-					cl = javaclassloader;
+					cl = filteredClassLoader;
 				}
 			}
 			cl = JaspersoftStudioPlugin.getDriversManager().getClassLoader(cl);
